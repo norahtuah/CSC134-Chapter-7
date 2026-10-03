@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CSC134 Chapter 7 Interactive Learning</title>
+<style>
+:root{--p:#4f46e5;--p2:#7c3aed;--bg:#f6f7fb;--card:#fff;--text:#172033;--muted:#657089;--good:#15803d;--bad:#b91c1c;--warn:#b45309}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(135deg,var(--p),var(--p2));color:white;padding:28px 18px}
+.wrap{max-width:1050px;margin:auto}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(1.6rem,4vw,2.7rem)} .sub{opacity:.9;margin-top:6px}.badge{background:#ffffff22;border:1px solid #ffffff55;padding:8px 12px;border-radius:999px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:18px auto}.navbtn{border:0;background:white;padding:11px 14px;border-radius:12px;cursor:pointer;box-shadow:0 2px 8px #00000012;font-weight:650}.navbtn.active{background:var(--p);color:white}
+main{padding:0 18px 40px}.screen{display:none}.screen.active{display:block}.card{background:var(--card);border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 5px 20px #17203312}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.topic{cursor:pointer;border:2px solid transparent;transition:.15s}.topic:hover{transform:translateY(-2px);border-color:#c7d2fe}
+.icon{font-size:2rem}.small{color:var(--muted);font-size:.94rem}.progress{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden}.bar{height:100%;background:linear-gradient(90deg,var(--p),#06b6d4);width:0}
+button.action{border:0;background:var(--p);color:white;padding:11px 16px;border-radius:12px;font-weight:700;cursor:pointer}button.secondary{background:#e8eafc;color:#3730a3}button.hint{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+.choice{display:block;width:100%;text-align:left;margin:9px 0;padding:13px;border:2px solid #e5e7eb;background:white;border-radius:12px;cursor:pointer}.choice:hover{border-color:#a5b4fc}.choice.correct{border-color:#22c55e;background:#f0fdf4}.choice.wrong{border-color:#ef4444;background:#fef2f2}
+.feedback{margin-top:12px;padding:12px;border-radius:12px;display:none}.feedback.good{display:block;background:#ecfdf5;color:#166534}.feedback.bad{display:block;background:#fef2f2;color:#991b1b}.feedback.info{display:block;background:#eff6ff;color:#1e40af}
+.flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:20px 0}.step{padding:15px 18px;border-radius:14px;background:#eef2ff;font-weight:800}.arrow{font-size:1.4rem}
+.flip{min-height:145px}.flip strong{font-size:1.08rem}.tag{display:inline-block;background:#eef2ff;color:#3730a3;border-radius:999px;padding:5px 9px;margin:3px;font-size:.84rem}
+.stat{font-size:1.7rem;font-weight:850}.center{text-align:center}.hidden{display:none!important}.matchrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin:8px 0}.matchrow select{padding:10px;border-radius:10px;border:1px solid #cbd5e1;width:100%}
+footer{text-align:center;color:var(--muted);padding:25px}.heroBtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+@media(max-width:600px){.matchrow{grid-template-columns:1fr}.card{padding:16px}}
+.student-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.student-form label{font-weight:700}.student-form input{width:100%;padding:12px;margin-top:6px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px}
+.result-table{width:100%;border-collapse:collapse;margin:14px 0}.result-table th,.result-table td{border:1px solid #d1d5db;padding:9px;text-align:left}.result-table th{background:#f3f4f6}
+.certificate{border:3px solid #4f46e5;padding:24px;border-radius:18px;background:white}.certificate h2{color:#3730a3}
+.syncbox{margin-top:14px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid #cbd5e1}.syncok{background:#ecfdf5;border-color:#86efac;color:#166534}.syncwarn{background:#fff7ed;border-color:#fdba74;color:#9a3412}
+@media print{header,nav,footer,#challenge .card:first-child,.no-print{display:none!important}body{background:white}.wrap{max-width:none}.screen{display:none!important}#challenge.screen{display:block!important}#challengeBox .card{display:none!important}#challengeBox #finalResult{display:block!important;box-shadow:none;margin:0;padding:0}.certificate{border:2px solid #333}.action{display:none!important}}
+</style>
+
+<style id="mobile-ready-enhancements">
+html{-webkit-text-size-adjust:100%;box-sizing:border-box}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;max-width:100%;overflow-x:hidden}
+img,svg,video,canvas{max-width:100%;height:auto}
+button,input,select,textarea{font:inherit}
+button,.btn,input,select{min-height:48px}
+button,.btn{touch-action:manipulation}
+input,select,textarea{font-size:16px!important;max-width:100%}
+.card,.panel,.topic-card,.question-card,.result-card{max-width:100%}
+pre,code,.submission-code{overflow-wrap:anywhere;word-break:break-word}
+@media (max-width:700px){
+  body{font-size:16px}
+  header,main,.container,.wrap,.content{width:100%!important;max-width:100%!important;padding-left:14px!important;padding-right:14px!important}
+  nav,.nav,.tabs,.nav-buttons{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+  nav button,.nav button,.tabs button,.nav-buttons button{flex:1 1 calc(50% - 8px);min-width:120px}
+  .grid,.topics-grid,.cards,.row,.form-row{grid-template-columns:1fr!important;flex-direction:column!important}
+  .option,.answer-option,.choice,.quiz-option{width:100%!important;min-height:52px!important;text-align:left!important;padding:12px 14px!important;margin:7px 0!important}
+  .card,.panel,.topic-card,.question-card,.result-card{width:100%!important;margin-left:0!important;margin-right:0!important;padding:16px!important}
+  h1{font-size:clamp(1.55rem,7vw,2rem)!important;line-height:1.15}
+  h2{font-size:clamp(1.3rem,6vw,1.65rem)!important}
+  table{display:block;max-width:100%;overflow-x:auto}
+}
+@media (max-width:420px){
+  nav button,.nav button,.tabs button,.nav-buttons button{flex-basis:100%}
+  header,main,.container,.wrap,.content{padding-left:10px!important;padding-right:10px!important}
+}
+@supports(padding:max(0px)){
+ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom)}
+}
+</style>
+
+</head>
+<body>
+<header><div class="wrap top"><div><h1>CSC134 • Chapter 7</h1><div class="sub">The Internet, the Web, and Electronic Commerce — Interactive Learning</div></div><div class="badge">Learn • Practice • Master</div></div></header>
+<main class="wrap">
+<nav>
+<button class="navbtn active" data-screen="home">🏠 Home</button>
+<button class="navbtn" data-screen="learn">📘 Learn</button>
+<button class="navbtn" data-screen="practice">🧠 Practice</button>
+<button class="navbtn" data-screen="classify">🎮 Classify</button>
+<button class="navbtn" data-screen="challenge">🏆 Challenge</button>
+</nav>
+
+<section id="home" class="screen active">
+<div class="card"><h2>Student Registration</h2>
+<p>Enter your details before beginning. Your name and Student ID will appear on the final completion result.</p>
+<div class="student-form">
+<label>Student Name<input id="studentName" type="text" placeholder="e.g. Nur Aisyah" autocomplete="name"></label>
+<label>Student ID<input id="studentId" type="text" placeholder="e.g. 2026123456" autocomplete="off"></label>
+</div>
+<div id="studentMsg" class="feedback"></div>
+<div class="heroBtns"><button class="action" onclick="saveStudent()">Save & Start Learning</button></div></div>
+<div class="card"><h2>Welcome to Chapter 7</h2>
+<p>This app supports Chapter 7: The Internet, the Web, and Electronic Commerce. Work through short lessons, check your understanding, classify key Internet and Web concepts, then attempt randomized practice and the final challenge.</p>
+<div class="heroBtns"><button class="action" onclick="go('learn')">Start Learning</button><button class="action secondary" onclick="go('practice')">Quick Practice</button></div></div>
+<div class="grid">
+<div class="card center"><div class="stat" id="bestScore">0%</div><div class="small">Best Challenge Score</div></div>
+<div class="card center"><div class="stat" id="attempts">0</div><div class="small">Challenge Attempts</div></div>
+<div class="card center"><div class="stat" id="mastery">0/8</div><div class="small">Topics Opened</div></div>
+</div>
+<div class="card"><h3>Your progress</h3><div class="progress"><div class="bar" id="progressBar"></div></div><p class="small" id="progressText">Start with Topic 1.</p></div>
+</section>
+
+<section id="learn" class="screen">
+<div class="card"><h2>📘 Learning Path</h2><p>Select a topic. Each lesson is concise and based on the Chapter 7 learning outcomes.</p></div>
+<div id="topicGrid" class="grid"></div>
+<div id="lessonBox"></div>
+</section>
+
+<section id="practice" class="screen">
+<div class="card"><h2>🧠 Random Practice</h2><p>Questions change order each time. Use <b>Hint</b> if you need help. An explanation appears after you answer.</p>
+<button class="action" onclick="startPractice()">New Practice Set</button></div>
+<div id="practiceBox"></div>
+</section>
+
+<section id="classify" class="screen">
+<div class="card"><h2>🎮 Internet & Web Classifier</h2><p>Match each description to the correct Chapter 7 Internet, Web, communication, commerce, cloud, or IoT concept.</p></div>
+<div class="card" id="matchBox"></div>
+</section>
+
+<section id="challenge" class="screen">
+<div class="card"><h2>🏆 Chapter 7 Challenge</h2><p>30 questions randomly selected for each attempt. Complete the challenge to generate a personalized result screen with your Name, Student ID, score, date/time, learning progress and a unique submission code.</p><button class="action" onclick="startChallenge()">Start Challenge</button></div>
+<div id="challengeBox"></div>
+</section>
+</main>
+<footer>CSC134 • Computers and Information Processing • Chapter 7 Learning App • Central Class Record Edition</footer>
+
+<script>
+
+const LECTURER_ENDPOINT = "PASTE_YOUR_CHAPTER_7_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+function centralEnabled(){return LECTURER_ENDPOINT.startsWith("https://script.google.com/")}
+let student = JSON.parse(localStorage.getItem("cscCh7Student")||'{"name":"","id":""}');
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function loadStudent(){
+ document.getElementById("studentName").value=student.name||"";
+ document.getElementById("studentId").value=student.id||"";
+}
+function saveStudent(){
+ let name=document.getElementById("studentName").value.trim(), id=document.getElementById("studentId").value.trim();
+ let m=document.getElementById("studentMsg");
+ if(name.length<2 || id.length<3){m.className="feedback bad";m.textContent="Please enter both your full name and Student ID.";return false}
+ student={name,id};localStorage.setItem("cscCh7Student",JSON.stringify(student));
+ m.className="feedback good";m.textContent="Student details saved. You may begin the learning activities.";
+ setTimeout(()=>go("learn"),500);return true
+}
+function requireStudent(){
+ student=JSON.parse(localStorage.getItem("cscCh7Student")||'{"name":"","id":""}');
+ if(!student.name||!student.id){go("home");let m=document.getElementById("studentMsg");m.className="feedback bad";m.textContent="Please enter your Name and Student ID before starting the final challenge.";return false}
+ return true
+}
+
+async function sendToLecturer(result){
+ const status=document.getElementById("centralStatus");
+ if(!centralEnabled()){
+   if(status){status.className="syncbox syncwarn";status.innerHTML="<b>Central record not configured yet.</b> This result is saved locally and can still be printed. Lecturer: add the Google Apps Script Web App URL to LECTURER_ENDPOINT in index.html."}
+   return;
+ }
+ if(status){status.className="syncbox";status.textContent="Sending result to lecturer record…"}
+ const payload={
+   course:"CSC134",chapter:"Chapter 7 - The Internet, the Web, and Electronic Commerce",
+   name:result.name,studentId:result.id,score:result.score,correct:result.correct,total:30,
+   completedAt:new Date().toISOString(),clientAttempt:result.attempt,submissionCode:result.code,
+   topicsOpened:result.topics
+ };
+ try{
+   await fetch(LECTURER_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
+   if(status){status.className="syncbox syncok";status.innerHTML="<b>Submission sent.</b> The result has been sent to the lecturer-controlled class record. Keep the PDF/result screen as your submission evidence."}
+   localStorage.setItem("cscCh7LastCentralSend",JSON.stringify(payload));
+ }catch(err){
+   if(status){status.className="syncbox syncwarn";status.innerHTML="<b>Could not send automatically.</b> Check the Internet connection and keep the PDF/result screen. You can use “Send Again” below."}
+ }
+}
+function resendLast(){
+ const raw=localStorage.getItem("cscCh7LastResult");if(!raw)return;
+ sendToLecturer(JSON.parse(raw));
+}
+
+function submissionCode(name,id,pct){
+ let s=(name+"|"+id+"|"+pct+"|"+new Date().toISOString().slice(0,10)).toUpperCase(),h=0;
+ for(let i=0;i<s.length;i++)h=((h<<5)-h+s.charCodeAt(i))|0;
+ return "CSC134-"+Math.abs(h).toString(36).toUpperCase().padStart(6,"0").slice(0,6);
+}
+
+const topics=[{"icon":"🌐","title":"1. Internet & Web Foundations","html":"<h3>Internet and World Wide Web</h3><p>The <b>Internet</b> is a worldwide network that connects many smaller networks. Its early development grew from ARPANET, launched in 1969. The <b>World Wide Web (WWW)</b>, introduced later, provides a multimedia interface to resources available through the Internet.</p><p>The Internet and the Web are related but not identical: the Internet is the underlying network infrastructure, while the Web is one way of accessing and presenting Internet resources.</p>"},{"icon":"🧭","title":"2. Access, Browsers & Web Technologies","html":"<h3>Getting to Web resources</h3><p>Users connect through an Internet service provider and use a <b>browser</b> to access and display Web resources. A device on the Internet is identified by an <b>IP address</b>; a <b>domain name</b> is its easier-to-read text name, and <b>DNS</b> translates domain names to IP addresses.</p><p>Web pages may use technologies such as <b>HTML, CSS, JavaScript and AJAX</b>. Mobile browsers are designed for portable devices.</p>"},{"icon":"🧰","title":"3. Web Utilities","html":"<h3>Making Web use easier and safer</h3><p><b>Web utilities</b> are specialized programs that support Internet and Web use. <b>Plug-ins</b> add browser capabilities, while <b>filters</b> can restrict inappropriate content.</p><p><b>File-transfer utilities</b> support downloading, uploading, FTP and secure transfer methods such as SFTP. <b>Internet security suites</b> combine protections such as antivirus, firewall, anti-spyware and anti-phishing tools.</p>"},{"icon":"💬","title":"4. Internet Communication","html":"<h3>Communicating online</h3><p>Internet communication includes <b>email, text messaging, instant messaging, social networking, blogs, microblogs, webcasts, podcasts and wikis</b>. These tools differ in whether communication is private or public, immediate or delayed, and mainly text, audio or video.</p><p>Instant messaging supports direct live communication and may also include video conferencing and file sharing.</p>"},{"icon":"🔎","title":"5. Search & Web Evaluation","html":"<h3>Finding and judging information</h3><p><b>Search engines</b> help locate information on the Web, while <b>specialized search engines</b> focus on a particular type or field of information. Good searching depends on choosing useful search terms and interpreting results carefully.</p><p>Web information should also be evaluated for factors such as <b>authority, accuracy, objectivity, currency and relevance</b>. A high search ranking alone does not prove that information is trustworthy.</p>"},{"icon":"🛒","title":"6. Electronic Commerce","html":"<h3>Buying and selling online</h3><p><b>Electronic commerce (e-commerce)</b> is the buying and selling of goods and services over the Internet. <b>B2C</b> involves a business selling to consumers, <b>C2C</b> involves transactions between consumers, and <b>B2B</b> involves transactions between businesses.</p><p>Security is important in e-commerce because transactions may involve personal information, accounts and payment data.</p>"},{"icon":"☁️","title":"7. Cloud Computing","html":"<h3>Services delivered through the Internet</h3><p><b>Cloud computing</b> uses Internet-based service providers to supply computing resources or services to clients. The chapter emphasizes a three-way interaction among the <b>client, the Internet and the service provider</b>.</p><p>Instead of relying only on resources stored or processed locally, users can access remote services and data through an Internet connection.</p>"},{"icon":"📡","title":"8. Internet of Things (IoT)","html":"<h3>Everyday objects exchanging data</h3><p>The <b>Internet of Things (IoT)</b> connects physical objects and devices that can be uniquely identified and can send or receive data over a network. Examples can include wearable devices, sensors, vehicles and other connected objects.</p><p>IoT extends Internet communication beyond traditional computers by allowing connected things to collect and exchange data, often with little direct human interaction.</p>"}];
+
+const bank=[{"level":"C1","q":"What is the Internet?","o":["A global network connecting many smaller networks","A single website","A word-processing program","A local printer"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"The Internet is the global network infrastructure connecting networks worldwide."},{"level":"C1","q":"Which early network is associated with the origin of the Internet in the chapter?","o":["ARPANET","Bluetooth","Ethernet II","HTML"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"ARPANET is identified as an important early Internet network."},{"level":"C1","q":"In which year does the chapter state ARPANET was launched?","o":["1969","1989","1991","2001"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"The chapter identifies 1969 as the launch year."},{"level":"C1","q":"What does WWW stand for?","o":["World Wide Web","World Wireless Window","Web Wide World","Worldwide Wired Web"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"WWW stands for World Wide Web."},{"level":"C1","q":"Which statement best distinguishes the Internet from the Web?","o":["The Internet is the network; the Web is an interface to resources on it","They are exactly the same thing","The Web is hardware and the Internet is a browser","The Internet exists only inside websites"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"The chapter distinguishes the physical/network infrastructure from the Web interface."},{"level":"C1","q":"What software provides access to and displays Web resources?","o":["Web browser","Spreadsheet","Device driver","Compiler"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"A browser is used to access and explore Web resources."},{"level":"C1","q":"What uniquely identifies a computer or device connected to the Internet?","o":["IP address","File name","Password","Folder name"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"An IP address uniquely identifies a connected device."},{"level":"C1","q":"What is a text-based name corresponding to an IP address?","o":["Domain name","Cookie","Hyperlink color","File extension"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"A domain name is the human-readable text name associated with an IP address."},{"level":"C1","q":"What does DNS do?","o":["Translates a domain name to its associated IP address","Compresses website images","Blocks all Internet traffic","Creates spreadsheets"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"DNS resolves domain names to IP addresses."},{"level":"C1","q":"Which technology is mainly used to structure the content of a Web page?","o":["HTML","FTP","DNS","B2C"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"HTML provides the basic structure of Web-page content."},{"level":"C1","q":"Which technology is associated with controlling Web-page presentation and style?","o":["CSS","SFTP","DNS","Podcasting"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"CSS is used for presentation and styling."},{"level":"C1","q":"Which technology commonly adds scripting and interactivity to Web pages?","o":["JavaScript","FTP","IP addressing","B2B"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"JavaScript supports interactive behavior in Web pages."},{"level":"C1","q":"What is a plug-in?","o":["Additional software that extends browser capabilities","A domain name translator","A type of e-commerce","A physical network cable"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"A plug-in adds capabilities to a browser."},{"level":"C1","q":"What is the main purpose of a Web filter?","o":["Restrict or protect against inappropriate content","Translate domain names","Create podcasts","Assign IP addresses"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Filters help protect users from inappropriate content."},{"level":"C1","q":"Which utility is used to transfer files between systems over a network?","o":["File-transfer utility","Word processor","Presentation program","Database report"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"File-transfer utilities support uploading and downloading files."},{"level":"C1","q":"Which protocol abbreviation is associated with file transfer?","o":["FTP","B2C","WWW","IoT"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"FTP stands for File Transfer Protocol."},{"level":"C1","q":"Which secure file-transfer method is named in the chapter?","o":["SFTP","CSS","HTML","DNS"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"SFTP is listed as a secure file-transfer method."},{"level":"C1","q":"What is the purpose of an Internet security suite?","o":["Protect users from cyber threats","Design Web-page layouts","Translate domain names","Create social-network accounts"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Security suites combine tools that protect against online threats."},{"level":"C1","q":"Which communication method sends electronic messages through the Internet?","o":["Email","DNS","FTP","CSS"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Email is an Internet communication method."},{"level":"C1","q":"Which communication method provides direct, live communication between two or more people?","o":["Instant messaging","Podcasting","Blogging","File compression"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Instant messaging provides direct live communication."},{"level":"C1","q":"What is a blog?","o":["A Web-based publication with posts or entries","A domain-name server","A file-transfer protocol","A network address"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"A blog is an online publication organized around posts or entries."},{"level":"C1","q":"What is a microblog?","o":["A service for short, frequent posts","A secure file-transfer tool","A browser plug-in","A type of IP address"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Microblogs emphasize short, frequent updates."},{"level":"C1","q":"What is a podcast?","o":["A distributed audio or media program that users can access on demand","A domain name","A Web filter","A shopping cart"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Podcasts distribute recorded media episodes for on-demand access."},{"level":"C1","q":"What is a wiki?","o":["A collaborative website whose content can be edited by users","A private IP address","A browser plug-in","An antivirus program"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"A wiki supports collaborative creation and editing of content."},{"level":"C1","q":"What is the primary purpose of a search engine?","o":["Locate information and Web resources","Assign IP addresses","Encrypt every file","Create hardware drivers"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Search engines help users find information on the Web."},{"level":"C1","q":"What does e-commerce mean?","o":["Buying and selling goods or services over the Internet","Only sending email","Creating local folders","Repairing computer hardware"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Electronic commerce concerns online buying and selling."},{"level":"C1","q":"What does B2C represent?","o":["Business-to-consumer","Browser-to-client","Business-to-cloud","Buyer-to-computer"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"B2C is business-to-consumer commerce."},{"level":"C1","q":"What does C2C represent?","o":["Consumer-to-consumer","Client-to-cloud","Computer-to-client","Commerce-to-company"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"C2C is consumer-to-consumer commerce."},{"level":"C1","q":"What does B2B represent?","o":["Business-to-business","Browser-to-browser","Buyer-to-browser","Business-to-blog"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"B2B is business-to-business commerce."},{"level":"C1","q":"What does IoT stand for?","o":["Internet of Things","Interface of Technology","Internet of Text","Integration of Telecommunications"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"IoT stands for Internet of Things."},{"level":"C2","q":"A student types a university's text-based Web address instead of remembering a numerical address. Which concept is being used?","o":["Domain name","IP packet size","Web filter","Podcast"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"A domain name gives a readable name corresponding to an Internet address."},{"level":"C2","q":"A user enters a domain name and a server finds the numerical Internet address needed to reach the site. Which service performed this task?","o":["DNS","FTP","CSS","B2C"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"DNS translates the domain name into its associated IP address."},{"level":"C2","q":"A website changes fonts, spacing and page appearance without changing the meaning of its content. Which technology is most directly involved?","o":["CSS","DNS","FTP","SFTP"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"CSS controls presentation and styling."},{"level":"C2","q":"A page responds immediately when a user clicks a button and updates part of the page dynamically. Which Web technology is most closely associated with scripting this interaction?","o":["JavaScript","IP address","B2B","Podcast"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"JavaScript is commonly used to add interactive behavior."},{"level":"C2","q":"A browser cannot display a particular type of content until extra browser software is added. What is needed?","o":["Plug-in","Search engine","Domain name","Wiki"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Plug-ins extend browser capabilities."},{"level":"C2","q":"Parents want software that limits children's access to unsuitable websites. Which Web utility best fits?","o":["Filter","File-transfer utility","DNS server","Podcast"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"A filter can restrict inappropriate content."},{"level":"C2","q":"A student sends a project file from a local computer to a remote server. Which activity is occurring?","o":["Upload","Download","Microblogging","B2C"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Uploading transfers a local file to a remote system."},{"level":"C2","q":"A student copies a file from a remote server to a laptop. Which activity is occurring?","o":["Download","Upload","DNS resolution","Webcasting"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Downloading transfers a remote file to the local device."},{"level":"C2","q":"An organization wants antivirus, firewall, anti-spyware and anti-phishing protection in one package. Which tool best fits?","o":["Internet security suite","Web browser","Search engine","Blog"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"An Internet security suite combines multiple protective tools."},{"level":"C2","q":"Two students need a live text conversation and want to exchange a file during the conversation. Which communication method best fits?","o":["Instant messaging","Podcast","Wiki","Search engine"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Instant messaging supports direct live communication and may include file sharing."},{"level":"C2","q":"A lecturer publishes a series of recorded audio lessons that students can listen to whenever they choose. Which medium best fits?","o":["Podcast","Wiki","DNS","FTP server only"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Podcasts provide recorded episodes for on-demand listening."},{"level":"C2","q":"A club wants many members to collaboratively edit the same collection of Web pages. Which tool best fits?","o":["Wiki","Microblog","Web filter","DNS"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Wikis support collaborative editing."},{"level":"C2","q":"A user posts very short updates frequently to followers. Which communication form best fits?","o":["Microblog","Traditional long-form blog","FTP","DNS"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Microblogs are designed for short, frequent posts."},{"level":"C2","q":"A company broadcasts a live or recorded presentation over the Web to a large audience. Which term best fits?","o":["Webcast","Wiki","Domain name","SFTP"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"A webcast distributes an event or presentation over the Web."},{"level":"C2","q":"A student needs scholarly information in a narrow discipline rather than broad general Web results. Which search approach is most suitable?","o":["Specialized search engine","Random social post","File-transfer utility","Browser plug-in"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"A specialized search engine focuses on particular information or fields."},{"level":"C2","q":"A webpage makes a strong claim but gives no author, source, or supporting evidence. Which evaluation concern is most relevant?","o":["Authority and accuracy","File-transfer speed","IP addressing","Browser size"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Source authority and evidence are important when evaluating Web information."},{"level":"C2","q":"A reliable-looking article was written many years ago about a technology that changes rapidly. Which evaluation factor should be checked most carefully?","o":["Currency","Screen resolution","File size","Domain length"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Currency asks whether information is sufficiently up to date."},{"level":"C2","q":"A website presents only one side of an issue because it is trying to sell a product. Which evaluation factor deserves particular attention?","o":["Objectivity","IP address","Download speed","HTML structure"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Objectivity considers bias and purpose."},{"level":"C2","q":"A retailer sells a laptop directly through its website to an individual customer. Which e-commerce type is this?","o":["B2C","C2C","B2B","IoT"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"A business selling to an individual consumer is B2C."},{"level":"C2","q":"One student sells a used calculator directly to another student through an online marketplace. Which e-commerce type is this?","o":["C2C","B2C","B2B","DNS"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"A transaction between consumers is C2C."},{"level":"C2","q":"A manufacturer orders components online from another company. Which e-commerce type is this?","o":["B2B","B2C","C2C","Webcast"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Transactions between businesses are B2B."},{"level":"C2","q":"An online shopper is about to enter payment information. Which issue is most important for the transaction?","o":["Security of personal and payment data","CSS formatting","Podcast quality","Microblog length"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"E-commerce requires protection of sensitive transaction information."},{"level":"C2","q":"A student edits a document using an online service while the document and processing are provided remotely over the Internet. Which concept best describes this?","o":["Cloud computing","Local-only computing","Web filtering","C2C commerce"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Cloud computing delivers resources or services through Internet-based providers."},{"level":"C2","q":"In the chapter's cloud-computing model, a laptop requests a remote service through the Internet. What role does the laptop play?","o":["Client","Service provider","DNS root only","Web filter"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"The user's device acts as the client."},{"level":"C2","q":"In the chapter's cloud-computing model, which component supplies the remote computing service?","o":["Service provider","Client","Browser history","Domain suffix"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"The service provider supplies cloud resources or services."},{"level":"C2","q":"A fitness band records activity and sends data through a network to an online application. Which concept does this illustrate?","o":["Internet of Things","B2B only","Web filtering","File compression"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"A connected physical device exchanging data is an IoT example."},{"level":"C2","q":"A car's built-in sensor reports tire pressure data electronically without a person typing the measurement. Which concept best fits?","o":["IoT","Podcasting","C2C","CSS"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Connected sensors that automatically exchange data are examples of IoT."},{"level":"C2","q":"A device has a unique identifier and can transfer sensor data over a network with little direct human interaction. Which technology does this describe?","o":["Internet of Things","Traditional word processing","Web filtering","Desktop publishing"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"These are core characteristics of IoT devices."},{"level":"C2","q":"A user wants software specifically designed to browse websites on a smartphone. Which type best fits?","o":["Mobile browser","File-transfer protocol","Internet security suite","Wiki"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"Mobile browsers are designed for portable devices."},{"level":"C2","q":"A student says, 'The Internet and the World Wide Web are exactly the same.' Which correction is most accurate?","o":["The Internet is the underlying network, while the Web provides access to multimedia resources over it","The Web is the physical cable and the Internet is only HTML","The Internet is a single website","The Web exists without any network"],"a":0,"h":"Identify the Chapter 7 concept that best matches the description or situation.","e":"The chapter explicitly distinguishes the Internet infrastructure from the Web."}];
+
+let opened=new Set(JSON.parse(localStorage.getItem("cscCh7Opened")||"[]"));
+function saveProgress(){localStorage.setItem("cscCh7Opened",JSON.stringify([...opened]));updateStats()}
+function updateStats(){
+ let best=+localStorage.getItem("cscCh7Best")||0, att=+localStorage.getItem("cscCh7Attempts")||0;
+ document.getElementById("bestScore").textContent=best+"%";document.getElementById("attempts").textContent=att;
+ document.getElementById("mastery").textContent=opened.size+"/8";document.getElementById("progressBar").style.width=(opened.size/8*100)+"%";
+ document.getElementById("progressText").textContent=opened.size===8?"All Chapter 7 learning topics opened. Try the Challenge!":`${opened.size} of 8 learning topics opened.`;
+}
+function go(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".navbtn").forEach(x=>x.classList.toggle("active",x.dataset.screen===id));scrollTo(0,0)}
+document.querySelectorAll(".navbtn").forEach(b=>b.onclick=()=>go(b.dataset.screen));
+document.getElementById("topicGrid").innerHTML=topics.map((t,i)=>`<div class="card topic" onclick="openTopic(${i})"><div class="icon">${t.icon}</div><h3>${t.title}</h3><p class="small">Tap to study</p></div>`).join("");
+function openTopic(i){opened.add(i);saveProgress();document.getElementById("lessonBox").innerHTML=`<div class="card flip">${topics[i].html}<div class="heroBtns"><button class="action" onclick="go('practice');startPractice()">Check My Understanding</button></div></div>`;document.getElementById("lessonBox").scrollIntoView({behavior:"smooth"})}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function renderQuestion(q,idx,prefix,onAnswered){
+ let opts=q.o.map((x,i)=>`<button class="choice" data-i="${i}">${String.fromCharCode(65+i)}. ${x}</button>`).join("");
+ let html=`<div class="card" id="${prefix}${idx}"><div class="small">Question ${idx+1}</div><h3>${q.q}</h3>${opts}<button class="action hint" onclick="showHint('${prefix}',${idx})">💡 Hint</button><div class="feedback" id="${prefix}f${idx}"></div></div>`;
+ setTimeout(()=>{document.querySelectorAll(`#${prefix}${idx} .choice`).forEach(b=>b.onclick=()=>answer(q,idx,prefix,+b.dataset.i,onAnswered))},0);return html;
+}
+function showHint(prefix,idx){let box=document.getElementById(prefix+"f"+idx), qs=prefix==="p"?practiceQs:challengeQs;box.className="feedback info";box.textContent="Hint: "+qs[idx].h}
+function answer(q,idx,prefix,pick,onAnswered){
+ let card=document.getElementById(prefix+idx);if(card.dataset.done)return;card.dataset.done="1";
+ card.querySelectorAll(".choice").forEach((b,i)=>{b.disabled=true;if(i===q.a)b.classList.add("correct");if(i===pick&&i!==q.a)b.classList.add("wrong")});
+ let f=document.getElementById(prefix+"f"+idx),ok=pick===q.a;f.className="feedback "+(ok?"good":"bad");f.innerHTML=`<b>${ok?"Correct!":"Not quite."}</b> ${q.e}`;onAnswered(ok)
+}
+let practiceQs=[],practiceScore=0,practiceDone=0;
+function startPractice(){practiceQs=shuffle(bank).slice(0,7);practiceScore=0;practiceDone=0;document.getElementById("practiceBox").innerHTML=practiceQs.map((q,i)=>renderQuestion(q,i,"p",practiceAnswered)).join("")}
+function practiceAnswered(ok){practiceDone++;if(ok)practiceScore++;if(practiceDone===practiceQs.length)document.getElementById("practiceBox").insertAdjacentHTML("beforeend",`<div class="card center"><h2>Practice Complete</h2><div class="stat">${practiceScore}/${practiceQs.length}</div><p>${practiceScore>=6?"Excellent recall.":"Review the explanations, then try a new randomized set."}</p><button class="action" onclick="startPractice()">Try Again</button></div>`)}
+let challengeQs=[],challengeScore=0,challengeDone=0;
+function startChallenge(){if(!requireStudent())return;const c1=shuffle(bank.filter(x=>x.level==="C1")).slice(0,15); const c2=shuffle(bank.filter(x=>x.level==="C2")).slice(0,15); challengeQs=shuffle([...c1,...c2]);challengeScore=0;challengeDone=0;document.getElementById("challengeBox").innerHTML=challengeQs.map((q,i)=>renderQuestion(q,i,"c",challengeAnswered)).join("")}
+function challengeAnswered(ok){
+ challengeDone++;if(ok)challengeScore++;
+ if(challengeDone===30){
+   let pct=Math.round((challengeScore/30)*100),best=Math.max(pct,+localStorage.getItem("cscCh7Best")||0),att=(+localStorage.getItem("cscCh7Attempts")||0)+1;
+   localStorage.setItem("cscCh7Best",best);localStorage.setItem("cscCh7Attempts",att);updateStats();
+   let now=new Date(), stamp=now.toLocaleString(), code=submissionCode(student.name,student.id,pct);
+   let studentAttemptKey="cscCh7Attempt_"+student.id, studentAttempt=(+localStorage.getItem(studentAttemptKey)||0)+1;
+   localStorage.setItem(studentAttemptKey,studentAttempt);
+   let status=pct>=80?"Strong mastery":pct>=60?"Good progress":"Review recommended";
+   let result={name:student.name,id:student.id,score:pct,correct:challengeScore,date:stamp,code,topics:opened.size,attempt:studentAttempt};
+   localStorage.setItem("cscCh7LastResult",JSON.stringify(result));
+   document.getElementById("challengeBox").insertAdjacentHTML("beforeend",`
+   <div class="card" id="finalResult">
+    <div class="certificate">
+     <div class="center"><div class="small">CSC134 • COMPUTERS AND INFORMATION PROCESSING</div><h2>Chapter 7 Completion Result</h2><p>The Internet, the Web, and Electronic Commerce</p></div>
+     <table class="result-table">
+      <tr><th>Student Name</th><td>${escapeHtml(student.name)}</td></tr>
+      <tr><th>Student ID</th><td>${escapeHtml(student.id)}</td></tr>
+      <tr><th>Challenge Score</th><td><b>${pct}% (${challengeScore}/30)</b></td></tr>
+      <tr><th>Learning Topics Opened</th><td>${opened.size}/8</td></tr>
+      <tr><th>Performance</th><td>${status}</td></tr>
+      <tr><th>Attempt Number</th><td>${studentAttempt}</td></tr><tr><th>Completed</th><td>${escapeHtml(stamp)}</td></tr>
+      <tr><th>Submission Code</th><td><b>${code}</b></td></tr>
+     </table>
+     <p class="small">This result was generated by the CSC134 Chapter 7 Interactive Learning App. When central recording is configured, the class record assigns its own authoritative attempt number for each Student ID.</p>
+     <div id="centralStatus" class="syncbox">Preparing lecturer submission…</div>
+     <div class="heroBtns no-print">
+       <button class="action secondary" onclick="resendLast()">↻ Send Again</button>
+       <button class="action" onclick="window.print()">🖨️ Print / Save as PDF</button>
+       <button class="action secondary" onclick="startChallenge()">Try New Challenge</button>
+       <button class="action secondary" onclick="go('home')">Return Home</button>
+     </div>
+    </div>
+   </div>`);
+   document.getElementById("finalResult").scrollIntoView({behavior:"smooth"});sendToLecturer(result);
+ }
+}
+const matchItems=[["Underlying worldwide network connecting many smaller networks","Internet"],["Multimedia interface used to access resources over the Internet","World Wide Web"],["Software used to access and display Web resources","Web browser"],["Service that translates a domain name to an IP address","DNS"],["Extra software that extends a browser's capabilities","Plug-in"],["Utility that restricts access to inappropriate Web content","Filter"],["Online transaction from a business to an individual customer","B2C"],["Connected physical objects that automatically exchange data","Internet of Things"]];
+const cats=["Internet","World Wide Web","Web browser","DNS","Plug-in","Filter","B2C","Internet of Things"];
+function buildMatch(){let items=shuffle(matchItems);document.getElementById("matchBox").innerHTML=items.map((x,i)=>`<div class="matchrow"><div>${x[0]}</div><select data-answer="${x[1]}"><option value="">Choose category…</option>${cats.map(c=>`<option>${c}</option>`).join("")}</select></div>`).join("")+`<div class="heroBtns"><button class="action" onclick="checkMatch()">Check Answers</button><button class="action secondary" onclick="buildMatch()">Shuffle</button></div><div id="matchFeedback"></div>`}
+function checkMatch(){let ss=[...document.querySelectorAll("#matchBox select")],n=ss.filter(s=>s.value===s.dataset.answer).length;ss.forEach(s=>s.style.borderColor=s.value===s.dataset.answer?"#22c55e":"#ef4444");document.getElementById("matchFeedback").innerHTML=`<div class="feedback info">You matched <b>${n}/${ss.length}</b> correctly. Green = correct; red = review and try again.</div>`}
+buildMatch();updateStats();loadStudent();
+</script>
+</body></html>
